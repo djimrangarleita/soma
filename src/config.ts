@@ -2,10 +2,10 @@ import dotenv from 'dotenv';
 
 dotenv.config({
   path: [
-    '.env',
     '.env.local',
-    '.env.test',
     '.env.test.local',
+    '.env.test',
+    '.env',
   ],
 })
 
