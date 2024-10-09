@@ -15,9 +15,9 @@ jobs:
 
     services:
       mongo:
-        image: mongo:latest
+        image: postgres:latest
         ports:
-          - 27017:27017
+          - 5432:5432
 
     steps:
       - uses: actions/checkout@v4
@@ -30,20 +30,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Wait for MongoDB to be ready
+      - name: Wait for PostgresSQL to be ready
         run: |
           for i in `seq 1 30`; do
-            nc -z localhost 27017 && echo Success && exit 0
-            echo "Waiting for MongoDB..."
+            nc -z localhost 5432 && echo Success && exit 0
+            echo "Waiting for PostgresSQL..."
             sleep 1
           done
-          echo "MongoDB did not start in time" && exit 1
+          echo "PostgresSQL did not start in time" && exit 1
 
       - name: Check Linting
-        run: npm run build --if-present
+        run: npm run lint
 
       - name: Build
-        run: npm run build --if-present
+        run: npm run build
 
       - name: Run tests
         run: npm test

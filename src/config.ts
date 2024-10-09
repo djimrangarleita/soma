@@ -1,23 +1,18 @@
 import dotenv from 'dotenv';
 
 dotenv.config({
-  path: [
-    '.env.local',
-    '.env.test.local',
-    '.env.test',
-    '.env',
-  ],
-})
+  path: ['.env.local', '.env.test.local', '.env.test', '.env'],
+});
 
 type Config = {
-  APP_PORT: string,
-  APP_SECRET: string,
-  NODE_ENV: string,
-  DB_URL: string,
-  DB_USER: string,
-  DB_NAME: string,
-  DB_PASSWORD: string,
-  APP_CLIENT_ORIGIN: string,
+  APP_PORT: string;
+  APP_SECRET: string;
+  NODE_ENV: string;
+  DB_URL: string;
+  DB_USER: string;
+  DB_NAME: string;
+  DB_PASSWORD: string;
+  APP_CLIENT_ORIGIN: string;
 };
 
 const config: Config = {
