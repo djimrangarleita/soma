@@ -12,10 +12,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: local
 
     services:
       postgres:
-        image: postgres:latest
+        image: postgres
         env:
           POSTGRES_USER: ${{ vars.DB_USER }}
           POSTGRES_PASSWORD: ${{ vars.DB_PASSWORD }}
@@ -45,7 +46,6 @@ jobs:
         run: npm run lint
 
       - name: Build
-
         run: npm run build
 
       - name: Run tests
