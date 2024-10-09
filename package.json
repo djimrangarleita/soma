@@ -4,10 +4,10 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "build": "dotenv -e .env.local tsc --build",
+    "build": "tsc --build",
     "start": "dotenv -e .env.local tsc --build && dotenv -e .env.local node ./dist/main.js",
     "start:dev": "dotenv -e .env.local nodemon ./src/main.ts",
-    "test": "dotenv -e .env.test.local -- jest -i",
+    "test": "jest",
     "test:coverage": "dotenv -e .env.test.local -- jest -i --coverage",
     "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx,json,css,scss,md}'",
     "lint": "eslint 'src/**/*.{ts,tsx,js,jsx}'",
