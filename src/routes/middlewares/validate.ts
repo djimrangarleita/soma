@@ -5,7 +5,6 @@ const validate =
   (schema: z.AnyZodObject | z.ZodOptional<z.AnyZodObject>) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log(req.body);
       await schema.parseAsync(req.body);
       next();
     } catch (error) {

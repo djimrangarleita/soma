@@ -19,6 +19,7 @@ class UserRepository implements IRepository<User, UserEntity, PartialUser> {
   }
 
   async update(id: string, userDoc: PartialUser): Promise<UserEntity | never> {
+    // TODO: Will crash if not found: PrismaClientKnownRequestError
     const user = await this.client.user.update({
       where: {
         id,
@@ -30,6 +31,7 @@ class UserRepository implements IRepository<User, UserEntity, PartialUser> {
   }
 
   async delete(id: string): Promise<void> {
+    // TODO: Will crash if not found: PrismaClientKnownRequestError
     await this.client.user.delete({
       where: {
         id,
