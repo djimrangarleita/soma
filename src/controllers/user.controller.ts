@@ -4,6 +4,7 @@ import {
   edit,
   getCollection,
   getOneById,
+  remove as removeUser,
 } from '../services/user.service';
 
 export const getAll = async (req: Request, res: Response) => {
@@ -19,7 +20,7 @@ export const register = async (req: Request, res: Response) => {
 };
 
 export const getProfile = async (req: Request, res: Response) => {
-  const user = await getOneById('6419c0b6-8d30-4b17-9ba6-3b9c89e855ef');
+  const user = await getOneById('73de8864-6cd6-4ea1-87d1-ea75d4a6dc61');
 
   res.send(user);
 };
@@ -28,4 +29,10 @@ export const update = async (req: Request, res: Response) => {
   const { id } = req.params;
   const user = await edit(id, req.body);
   res.send(user);
+};
+
+export const remove = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  await removeUser(id);
+  res.status(204).send();
 };

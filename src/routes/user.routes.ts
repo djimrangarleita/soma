@@ -12,4 +12,6 @@ userRouter.get('/me', userController.getProfile);
 
 userRouter.patch('/:id', userController.update);
 
+userRouter.delete('/:id', userController.remove);
+
 export default userRouter;
