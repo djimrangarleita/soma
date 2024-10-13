@@ -1,4 +1,5 @@
 import { Request, Response } from 'express-serve-static-core';
+import HttpStatus from '../common/httpStatus';
 import {
   create,
   edit,
@@ -16,7 +17,7 @@ export const getAll = async (req: Request, res: Response) => {
 export const register = async (req: Request, res: Response) => {
   const user = await create(req.body);
 
-  res.status(201).send(user);
+  res.status(HttpStatus.Created.code).send(user);
 };
 
 export const getProfile = async (req: Request, res: Response) => {
@@ -28,11 +29,13 @@ export const getProfile = async (req: Request, res: Response) => {
 export const update = async (req: Request, res: Response) => {
   const { id } = req.params;
   const user = await edit(id, req.body);
+
   res.send(user);
 };
 
 export const remove = async (req: Request, res: Response) => {
   const { id } = req.params;
   await removeUser(id);
-  res.status(204).send();
+
+  res.status(HttpStatus.NoContent.code).send();
 };
