@@ -67,7 +67,9 @@ export const update = async (
     const user = await edit(id, req.body);
     res.send(user);
   } catch (error) {
-    if (error instanceof NotFoundError) {
+    if (error instanceof AppValidationError) {
+      next(new createError.UnprocessableEntity(error.message));
+    } else if (error instanceof NotFoundError) {
       next(new createError.BadRequest(error.message));
     } else {
       next(error);
