@@ -13,7 +13,7 @@ const validate =
         err = err.issues.map(e => ({ path: e.path[0], message: e.message }));
       }
       res.status(422).send({
-        status: 'failed',
+        statusCode: 422,
         error: err,
       });
     }
