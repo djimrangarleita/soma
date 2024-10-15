@@ -8,6 +8,7 @@ import {
   getCollection,
   getOneById,
   remove as removeUser,
+  login as userLogin,
 } from '../services/user.service';
 
 export const getAll = async (
@@ -46,7 +47,7 @@ export const getProfile = async (
   next: NextFunction
 ) => {
   try {
-    const user = await getOneById('73de8864-6cd6-4ea1-87d1-ea75d4a6dc61', true);
+    const user = await getOneById('cadadaec-220c-483f-9585-03c38f1b657f', true);
     res.send(user);
   } catch (error) {
     if (error instanceof NotFoundError) {
@@ -86,6 +87,23 @@ export const remove = async (
     const { id } = req.params;
     await removeUser(id);
     res.status(HttpStatus.NoContent.code).send();
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      next(new createError.BadRequest(error.message));
+    } else {
+      next(error);
+    }
+  }
+};
+
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const token = await userLogin(req.body);
+    res.send({ token });
   } catch (error) {
     if (error instanceof NotFoundError) {
       next(new createError.BadRequest(error.message));

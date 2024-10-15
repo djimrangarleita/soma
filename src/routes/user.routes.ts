@@ -8,6 +8,12 @@ userRouter.get('/', userController.getAll);
 
 userRouter.post('/', userValidator.validateCreate, userController.register);
 
+userRouter.post(
+  '/login',
+  userValidator.validateCredentials,
+  userController.login
+);
+
 userRouter.get('/me', userController.getProfile);
 
 userRouter.patch('/:id', userValidator.validateUpdate, userController.update);

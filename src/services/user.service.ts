@@ -6,13 +6,26 @@ import DbError, {
   NotFoundError as DbNotFoundError,
   ValidationConstraintError,
 } from '../common/dbErrors';
+import { authentication, random } from '../lib/auth';
 import userRepository from '../repositories/user.repository';
-import { User, UserEntity } from '../schema/user.schema';
+import {
+  LoginCredentials,
+  User,
+  UserEntityPublic,
+} from '../schema/user.schema';
 
 // TODO: Catch PrismaClientInitializationError at app init
-export const create = async (userDoc: User): Promise<UserEntity | never> => {
+export const create = async (
+  userDoc: User
+): Promise<UserEntityPublic | never> => {
   try {
+    const salt = random();
+
+    userDoc.salt = salt;
+    userDoc.password = authentication(salt, userDoc.password);
+
     const user = await userRepository.create(userDoc);
+
     return user;
   } catch (error) {
     if (error instanceof ValidationConstraintError) {
@@ -28,7 +41,7 @@ export const create = async (userDoc: User): Promise<UserEntity | never> => {
 export const edit = async (
   id: string,
   userDoc: User
-): Promise<UserEntity | never> => {
+): Promise<UserEntityPublic | never> => {
   try {
     const user = await userRepository.update(id, userDoc);
     return user;
@@ -57,7 +70,7 @@ export const remove = async (id: string): Promise<void | never> => {
   }
 };
 
-export const getCollection = async (): Promise<UserEntity[] | never> => {
+export const getCollection = async (): Promise<UserEntityPublic[] | never> => {
   try {
     const users = await userRepository.find();
     return users;
@@ -72,7 +85,7 @@ export const getCollection = async (): Promise<UserEntity[] | never> => {
 export const getOneById = async (
   id: string,
   orThrow = false
-): Promise<UserEntity | null | never> => {
+): Promise<UserEntityPublic | null | never> => {
   try {
     const user = await userRepository.findOneById(id);
     if (!user && orThrow) {
@@ -90,7 +103,7 @@ export const getOneById = async (
 export const getOneByEmail = async (
   email: string,
   orThrow = false
-): Promise<UserEntity | null | never> => {
+): Promise<UserEntityPublic | null | never> => {
   try {
     const user = await userRepository.findOneByEmail(email);
     if (!user && orThrow) {
@@ -105,4 +118,9 @@ export const getOneByEmail = async (
     }
     throw error;
   }
+};
+
+export const login = async (credentials: LoginCredentials): Promise<string> => {
+  console.log(credentials);
+  return 'Bonjour';
 };

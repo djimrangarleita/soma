@@ -15,6 +15,7 @@ CREATE TABLE "user" (
     "phoneNumber" VARCHAR(24) NOT NULL,
     "accountStatus" "AccountStatus" NOT NULL DEFAULT 'CREATED',
     "password" VARCHAR(128) NOT NULL,
+    "salt" VARCHAR(255) NOT NULL,
     "role" "Role" NOT NULL DEFAULT 'USER',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updateAt" TIMESTAMP(3) NOT NULL,

@@ -8,20 +8,29 @@ import DbError, {
   NotFoundError,
   ValidationConstraintError,
 } from '../common/dbErrors';
-import { PartialUser, User, UserEntity } from '../schema/user.schema';
+import {
+  PartialUser,
+  publicUser,
+  User,
+  UserEntity,
+  UserEntityPublic,
+} from '../schema/user.schema';
 import { IRepository } from './types';
 
-class UserRepository implements IRepository<User, UserEntity, PartialUser> {
+class UserRepository
+  implements IRepository<User, UserEntityPublic, PartialUser>
+{
   private client: PrismaClient;
 
   constructor(client: PrismaClient) {
     this.client = client;
   }
 
-  async create(userDoc: User): Promise<UserEntity | never> {
+  async create(userDoc: User): Promise<UserEntityPublic | never> {
     try {
       const user = await this.client.user.create({
-        data: userDoc,
+        data: { ...userDoc, salt: userDoc.salt! },
+        select: publicUser,
       });
       return user;
     } catch (error) {
@@ -36,7 +45,10 @@ class UserRepository implements IRepository<User, UserEntity, PartialUser> {
     }
   }
 
-  async update(id: string, userDoc: PartialUser): Promise<UserEntity | never> {
+  async update(
+    id: string,
+    userDoc: PartialUser
+  ): Promise<UserEntityPublic | never> {
     // TODO: Will crash if not found: PrismaClientKnownRequestError
     // PrismaClientValidationError
     try {
@@ -45,6 +57,7 @@ class UserRepository implements IRepository<User, UserEntity, PartialUser> {
           id,
         },
         data: userDoc,
+        select: publicUser,
       });
       return user;
     } catch (error) {
@@ -54,7 +67,6 @@ class UserRepository implements IRepository<User, UserEntity, PartialUser> {
       ) {
         throw new ValidationConstraintError();
       }
-      console.log('Update: I reached');
       throw new DbError();
     }
   }
@@ -75,9 +87,12 @@ class UserRepository implements IRepository<User, UserEntity, PartialUser> {
     }
   }
 
-  async findOneById(id: string): Promise<UserEntity | null | never> {
+  async findOneById(id: string): Promise<UserEntityPublic | null | never> {
     try {
-      const user = await this.client.user.findUnique({ where: { id } });
+      const user = await this.client.user.findUnique({
+        where: { id },
+        select: publicUser,
+      });
       return user;
     } catch (error) {
       const err = error as Error;
@@ -85,9 +100,14 @@ class UserRepository implements IRepository<User, UserEntity, PartialUser> {
     }
   }
 
-  async findOneByEmail(email: string): Promise<UserEntity | null | never> {
+  async findOneByEmail(
+    email: string
+  ): Promise<UserEntityPublic | null | never> {
     try {
-      const user = await this.client.user.findUnique({ where: { email } });
+      const user = await this.client.user.findUnique({
+        where: { email },
+        select: publicUser,
+      });
       return user;
     } catch (error) {
       const err = error as Error;
@@ -98,13 +118,28 @@ class UserRepository implements IRepository<User, UserEntity, PartialUser> {
   /**
    * Fetch all users
    *
-   * @returns {UserEntity[]} list of users
+   * @returns {UserEntityPublic[]} list of users
    * @throws {DbError} Will throw an error if request fails
    */
-  async find(): Promise<UserEntity[] | never> {
+  async find(): Promise<UserEntityPublic[] | never> {
     try {
-      const users = await this.client.user.findMany();
+      const users = await this.client.user.findMany({ select: publicUser });
       return users;
+    } catch (error) {
+      const err = error as Error;
+      throw new DbError(err.message);
+    }
+  }
+
+  async loadUser(emailOrId: string): Promise<UserEntity | never> {
+    try {
+      const user = await this.client.user.findMany({
+        where: { OR: [{ email: emailOrId }, { id: emailOrId }] },
+      });
+      if (!user || user.length > 1) {
+        throw new NotFoundError();
+      }
+      return user[0];
     } catch (error) {
       const err = error as Error;
       throw new DbError(err.message);
