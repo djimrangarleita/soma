@@ -1,4 +1,5 @@
 import AppError, {
+  AppInvalidCredentialsError,
   AppValidationError,
   NotFoundError,
 } from '../common/appErrors';
@@ -121,6 +122,19 @@ export const getOneByEmail = async (
 };
 
 export const login = async (credentials: LoginCredentials): Promise<string> => {
-  console.log(credentials);
-  return 'Bonjour';
+  const user = await userRepository.loadUser(credentials.email);
+  if (!user) {
+    throw new AppInvalidCredentialsError('User not found');
+  }
+  const expectedHash = authentication(user.salt!, credentials.password);
+
+  if (user.password !== expectedHash) {
+    throw new AppInvalidCredentialsError('Wrong password');
+  }
+
+  const salt = random();
+
+  const sessionToken = authentication(salt, user.id);
+
+  return sessionToken;
 };

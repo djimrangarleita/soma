@@ -131,10 +131,10 @@ class UserRepository
     }
   }
 
-  async loadUser(emailOrId: string): Promise<UserEntity | never> {
+  async loadUser(email: string): Promise<UserEntity | never> {
     try {
       const user = await this.client.user.findMany({
-        where: { OR: [{ email: emailOrId }, { id: emailOrId }] },
+        where: { email },
       });
       if (!user || user.length > 1) {
         throw new NotFoundError();

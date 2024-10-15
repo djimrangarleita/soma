@@ -16,3 +16,9 @@ export class AppValidationError extends AppError {
     super(message);
   }
 }
+
+export class AppInvalidCredentialsError extends AppError {
+  constructor(message = 'Invalid credentials') {
+    super(message);
+  }
+}

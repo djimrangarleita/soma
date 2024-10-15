@@ -1,6 +1,11 @@
 import { NextFunction, Request, Response } from 'express-serve-static-core';
 import createError from 'http-errors';
-import { AppValidationError, NotFoundError } from '../common/appErrors';
+import {
+  AppInvalidCredentialsError,
+  AppValidationError,
+  NotFoundError,
+} from '../common/appErrors';
+import DbError from '../common/dbErrors';
 import HttpStatus from '../common/httpStatus';
 import {
   create,
@@ -105,8 +110,11 @@ export const login = async (
     const token = await userLogin(req.body);
     res.send({ token });
   } catch (error) {
-    if (error instanceof NotFoundError) {
-      next(new createError.BadRequest(error.message));
+    if (
+      error instanceof AppInvalidCredentialsError ||
+      error instanceof DbError
+    ) {
+      next(new createError.Unauthorized());
     } else {
       next(error);
     }
