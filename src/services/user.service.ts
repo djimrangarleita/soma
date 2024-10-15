@@ -33,6 +33,9 @@ export const edit = async (
     const user = await userRepository.update(id, userDoc);
     return user;
   } catch (error) {
+    if (error instanceof ValidationConstraintError) {
+      throw new AppValidationError(error.message);
+    }
     if (error instanceof DbNotFoundError) {
       throw new NotFoundError(`No entry corresponds to the id: ${id}`);
     }

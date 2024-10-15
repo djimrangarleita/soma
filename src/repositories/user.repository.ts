@@ -48,13 +48,13 @@ class UserRepository implements IRepository<User, UserEntity, PartialUser> {
       });
       return user;
     } catch (error) {
-      const err = error as Error;
       if (
-        err instanceof PrismaClientValidationError ||
-        err instanceof PrismaClientKnownRequestError
+        error instanceof PrismaClientValidationError ||
+        error instanceof PrismaClientKnownRequestError
       ) {
         throw new ValidationConstraintError();
       }
+      console.log('Update: I reached');
       throw new DbError();
     }
   }
