@@ -23,7 +23,7 @@ model User {
   salt          String        @db.VarChar(255)
   role          Role          @default(USER)
   createdAt     DateTime      @default(now())
-  updateAt      DateTime      @updatedAt
+  updatedAt     DateTime      @updatedAt
   profile       Profile?
   notes         Note[]
   libraries     Library[]

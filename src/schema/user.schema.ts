@@ -32,7 +32,11 @@ export type PartialUser = z.infer<typeof PartialUserSchema>;
 
 export type UserEntity = User & { id: string };
 
-export type UserEntityPublic = Omit<User, 'password' | 'salt'> & { id: string };
+export type UserEntityPublic = Omit<User, 'password' | 'salt'> & {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 export type LoginCredentials = z.infer<typeof LoginCredentialsSchema>;
 

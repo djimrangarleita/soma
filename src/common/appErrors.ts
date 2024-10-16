@@ -22,3 +22,21 @@ export class AppInvalidCredentialsError extends AppError {
     super(message);
   }
 }
+
+export class AppRedisClientInitializationError extends AppError {
+  constructor(message = 'Redis client not initialized') {
+    super(message);
+  }
+}
+
+export class AppRedisClientError extends AppError {
+  constructor(message = 'Redis client error') {
+    super(message);
+  }
+}
+
+export class AppWrongOrExpiredTokenError extends AppError {
+  constructor(message = "The provided token doesn't exist in the store") {
+    super(message);
+  }
+}

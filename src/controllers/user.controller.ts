@@ -11,7 +11,6 @@ import {
   create,
   edit,
   getCollection,
-  getOneById,
   remove as removeUser,
   login as userLogin,
 } from '../services/user.service';
@@ -52,7 +51,7 @@ export const getProfile = async (
   next: NextFunction
 ) => {
   try {
-    const user = await getOneById('cadadaec-220c-483f-9585-03c38f1b657f', true);
+    const { user } = req;
     res.send(user);
   } catch (error) {
     if (error instanceof NotFoundError) {
@@ -110,10 +109,9 @@ export const login = async (
     const token = await userLogin(req.body);
     res.send({ token });
   } catch (error) {
-    if (
-      error instanceof AppInvalidCredentialsError ||
-      error instanceof DbError
-    ) {
+    if (error instanceof AppInvalidCredentialsError) {
+      next(new createError.Unauthorized('Wrong credentials'));
+    } else if (error instanceof DbError) {
       next(new createError.Unauthorized());
     } else {
       next(error);

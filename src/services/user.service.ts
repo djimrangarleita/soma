@@ -1,12 +1,15 @@
 import AppError, {
   AppInvalidCredentialsError,
   AppValidationError,
+  AppWrongOrExpiredTokenError,
   NotFoundError,
 } from '../common/appErrors';
 import DbError, {
   NotFoundError as DbNotFoundError,
   ValidationConstraintError,
 } from '../common/dbErrors';
+import redisClient from '../common/redisClient';
+import config from '../config';
 import { authentication, random } from '../lib/auth';
 import userRepository from '../repositories/user.repository';
 import {
@@ -134,7 +137,31 @@ export const login = async (credentials: LoginCredentials): Promise<string> => {
 
   const salt = random();
 
-  const sessionToken = authentication(salt, user.id);
+  const authToken = authentication(salt, user.id);
 
-  return sessionToken;
+  await redisClient.redisClient!.set(
+    `authToken:${authToken}`,
+    user.id,
+    config.AUTH_TOKEN_TTL
+  );
+
+  return authToken;
+};
+
+export const loadUserFromToken = async (
+  authToken: string
+): Promise<UserEntityPublic | never> => {
+  const userId = await redisClient.redisClient!.get(`authToken:${authToken}`);
+
+  if (!userId) {
+    throw new AppWrongOrExpiredTokenError();
+  }
+
+  const user = await userRepository.findOneById(userId);
+
+  if (!user) {
+    throw new NotFoundError('No user found');
+  }
+
+  return user;
 };

@@ -3,7 +3,7 @@ import {
   PrismaClientKnownRequestError,
   PrismaClientValidationError,
 } from '@prisma/client/runtime/library';
-import dbClient from '../common/db_client';
+import dbClient from '../common/dbClient';
 import DbError, {
   NotFoundError,
   ValidationConstraintError,
