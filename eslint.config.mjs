@@ -75,5 +75,13 @@ export default [
       'max-classes-per-file': ['error', { ignoreExpressions: true, max: 2 }],
       'no-useless-constructor': 'warn',
     },
+    overrides: [
+      {
+        files: ['src/fixtures/**/*'],
+        rules: {
+          'import/no-extraneous-dependencies': 'off',
+        },
+      }
+    ],
   },
 ];
