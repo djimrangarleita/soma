@@ -1,13 +1,18 @@
 import { NextFunction, Request, Response } from 'express-serve-static-core';
 import createError from 'http-errors';
-import { AppValidationError, NotFoundError } from '../common/appErrors';
+import {
+  AppInvalidCredentialsError,
+  AppValidationError,
+  NotFoundError,
+} from '../common/appErrors';
+import DbError from '../common/dbErrors';
 import HttpStatus from '../common/httpStatus';
 import {
   create,
   edit,
   getCollection,
-  getOneById,
   remove as removeUser,
+  login as userLogin,
 } from '../services/user.service';
 
 export const getAll = async (
@@ -46,7 +51,7 @@ export const getProfile = async (
   next: NextFunction
 ) => {
   try {
-    const user = await getOneById('73de8864-6cd6-4ea1-87d1-ea75d4a6dc61', true);
+    const { user } = req;
     res.send(user);
   } catch (error) {
     if (error instanceof NotFoundError) {
@@ -89,6 +94,25 @@ export const remove = async (
   } catch (error) {
     if (error instanceof NotFoundError) {
       next(new createError.BadRequest(error.message));
+    } else {
+      next(error);
+    }
+  }
+};
+
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const token = await userLogin(req.body);
+    res.send({ token });
+  } catch (error) {
+    if (error instanceof AppInvalidCredentialsError) {
+      next(new createError.Unauthorized('Wrong credentials'));
+    } else if (error instanceof DbError) {
+      next(new createError.Unauthorized());
     } else {
       next(error);
     }

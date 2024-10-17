@@ -20,9 +20,10 @@ model User {
   phoneNumber   String        @db.VarChar(24)
   accountStatus AccountStatus @default(CREATED)
   password      String        @db.VarChar(128)
+  salt          String        @db.VarChar(255)
   role          Role          @default(USER)
   createdAt     DateTime      @default(now())
-  updateAt      DateTime      @updatedAt
+  updatedAt     DateTime      @updatedAt
   profile       Profile?
   notes         Note[]
   libraries     Library[]

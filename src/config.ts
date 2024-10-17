@@ -13,6 +13,7 @@ type Config = {
   DB_NAME: string;
   DB_PASSWORD: string;
   APP_CLIENT_ORIGIN: string;
+  AUTH_TOKEN_TTL: number;
 };
 
 const config: Config = {
@@ -27,6 +28,7 @@ const config: Config = {
     (process.env.NODE_ENV === 'production'
       ? process.env.APP_CLIENT_ORIGIN_PROD
       : process.env.APP_CLIENT_ORIGIN_DEV) || 'http://localhost',
+  AUTH_TOKEN_TTL: Number(process.env.AUTH_TOKEN_TTL) || 3600,
 };
 
 export default config;

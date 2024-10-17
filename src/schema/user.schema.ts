@@ -12,7 +12,15 @@ export const UserSchema = z
     phoneNumber: z.string().trim().max(24).min(3),
     accountStatus: z.enum(UserAccountStatus).optional(),
     role: z.enum(UserRole).optional(),
-    password: z.string().trim().max(64).min(6),
+    password: z.string().max(64).min(6),
+    salt: z.string().optional(),
+  })
+  .strict();
+
+const LoginCredentialsSchema = z
+  .object({
+    email: z.string().trim().email(),
+    password: z.string(),
   })
   .strict();
 
@@ -24,7 +32,27 @@ export type PartialUser = z.infer<typeof PartialUserSchema>;
 
 export type UserEntity = User & { id: string };
 
+export type UserEntityPublic = Omit<User, 'password' | 'salt'> & {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type LoginCredentials = z.infer<typeof LoginCredentialsSchema>;
+
+export const publicUser = {
+  id: true,
+  name: true,
+  email: true,
+  phoneNumber: true,
+  accountStatus: true,
+  role: true,
+  createdAt: true,
+  updatedAt: true,
+};
+
 export const userValidator = {
   validateCreate: validate(UserSchema),
   validateUpdate: validate(PartialUserSchema),
+  validateCredentials: validate(LoginCredentialsSchema),
 };
