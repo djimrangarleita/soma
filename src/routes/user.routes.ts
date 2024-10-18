@@ -17,8 +17,13 @@ userRouter.post(
 
 userRouter.get('/me', isGranted(), userController.getProfile);
 
-userRouter.patch('/:id', userValidator.validateUpdate, userController.update);
+userRouter.patch(
+  '/:id',
+  isGranted(),
+  userValidator.validateUpdate,
+  userController.update
+);
 
-userRouter.delete('/:id', userController.remove);
+userRouter.delete('/:id', isGranted(), userController.remove);
 
 export default userRouter;

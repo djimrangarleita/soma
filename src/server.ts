@@ -11,7 +11,7 @@ export default function startServer(appPort?: string): Express {
 
   app.use(express.json());
 
-  app.use(appRouter);
+  app.use('/api', appRouter);
 
   app.use(handleNotFound);
 
