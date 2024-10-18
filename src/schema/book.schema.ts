@@ -1,24 +1,5 @@
 import { z } from 'zod';
 import validate from '../routes/middlewares/validate';
-// id              String    @id @default(uuid()) @db.Uuid
-// title           String    @db.VarChar(255)
-// subtitle        String    @db.VarChar(255)
-// isbn            String?   @db.VarChar(64)
-// authors         String[]
-// pageCount       Int
-// summary         String?
-// illustration    String?   @db.VarChar(255)
-// publicationDate DateTime?
-// publisher       String    @db.VarChar(128)
-// edition         String?   @db.VarChar()
-// editors         String[]
-// language        String    @db.VarChar()
-// genre           String    @db.VarChar(64)
-// tags            String[]
-// dimensions      String?   @db.VarChar(128)
-// notes           Note[]
-// libraries       Library[]
-// posts           Post[]
 
 export const BookSchema = z
   .object({
