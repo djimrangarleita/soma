@@ -57,18 +57,18 @@ model Profile {
 model Book {
   id              String    @id @default(uuid()) @db.Uuid
   title           String    @db.VarChar(255)
-  subtitle        String    @db.VarChar(255)
+  subtitle        String?   @db.VarChar(255)
   isbn            String?   @db.VarChar(64)
   authors         String[]
   pageCount       Int
   summary         String?
-  illustration    String?   @db.VarChar(255)
-  publicationDate DateTime?
-  publisher       String    @db.VarChar(128)
-  edition         String?   @db.VarChar()
+  cover           String?   @db.VarChar(255)
+  publicationDate DateTime? @db.Date()
+  publisher       String?   @db.VarChar(128)
+  edition         String?   @db.VarChar(255)
   editors         String[]
-  language        String    @db.VarChar()
-  genre           String    @db.VarChar(64)
+  language        String    @db.VarChar(128)
+  genre           String?   @db.VarChar(64)
   tags            String[]
   dimensions      String?   @db.VarChar(128)
   notes           Note[]
@@ -113,7 +113,7 @@ model Library {
 
 model Post {
   id        String     @id @default(uuid()) @db.Uuid
-  text      String
+  text      String     @db.VarChar(1000)
   reference String     @db.VarChar(128)
   medias    String[]
   user      User       @relation(fields: [userId], references: [id])

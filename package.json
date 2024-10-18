@@ -14,7 +14,8 @@
     "lint:fix": "eslint 'src/**/*.{ts,tsx,js,jsx}' --fix",
     "pm": "dotenv -e .env.local npx prisma migrate dev --name $migration_name && dotenv -e .env.local npx prisma generate",
     "ps": "dotenv -e .env.local npx prisma studio",
-    "fixtures:load": "dotenv -e .env.local npx ts-node src/fixtures"
+    "fixtures:load": "dotenv -e .env.local npx ts-node src/fixtures",
+    "db:reset": "dotenv -e .env.local npx prisma migrate reset && dotenv -e .env.local npx prisma generate"
   },
   "keywords": [],
   "author": "Djimra NGARLEITA",
