@@ -1,32 +1,32 @@
-import { faker } from '@faker-js/faker';
-import * as Factory from 'factory.ts';
 import dbClient from '../common/dbClient';
+import config from '../config';
 import { authentication, random } from '../lib/auth';
-import { UserEntity } from '../schema/user.schema';
+import userFactory from './user.fixture';
 
-const userFactory = Factory.Sync.makeFactory<UserEntity>({
-  id: faker.string.uuid(),
-  name: faker.person.fullName(),
-  email: faker.internet.email(),
-  phoneNumber: faker.phone.number(),
-  salt: random(),
-  password: 'password',
-});
 
 async function main() {
-  const user = userFactory.withDerivation('password', (user) => authentication(user.salt!, 'password')).build();
+  const users = userFactory.buildList(10);
 
-  console.log(`Generated id: ${user.id}`)
+  const usalt = random();
 
-  const userEntity = await dbClient.user.create({
-    data: { ...user, salt: user.salt!}
+  await dbClient.user.createMany({
+    data: [
+      {
+        name: config.ADMIN_NAME,
+        email: config.ADMIN_EMAIL,
+        phoneNumber: config.ADMIN_PHONE_NUMBER,
+        salt: usalt,
+        password: authentication(usalt, config.ADMIN_PASSWORD),
+        role: 'ADMIN',
+        accountStatus: 'ACTIVATED',
+      },
+      ...users,
+    ]
   });
-
-  console.log(userEntity);
 }
 
 main().then(() => {
-  console.log('User created');
+  console.info('Users created');
 }).catch(error => {
   console.error(error);
 });

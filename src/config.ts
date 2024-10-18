@@ -14,6 +14,10 @@ type Config = {
   DB_PASSWORD: string;
   APP_CLIENT_ORIGIN: string;
   AUTH_TOKEN_TTL: number;
+  ADMIN_NAME: string,
+  ADMIN_EMAIL: string,
+  ADMIN_PASSWORD: string,
+  ADMIN_PHONE_NUMBER: string,
 };
 
 const config: Config = {
@@ -29,6 +33,10 @@ const config: Config = {
       ? process.env.APP_CLIENT_ORIGIN_PROD
       : process.env.APP_CLIENT_ORIGIN_DEV) || 'http://localhost',
   AUTH_TOKEN_TTL: Number(process.env.AUTH_TOKEN_TTL) || 3600,
+  ADMIN_NAME: process.env.ADMIN_NAME || 'Admin',
+  ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'admin@soma.org',
+  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || 'password',
+  ADMIN_PHONE_NUMBER: process.env.ADMIN_PHONE_NUMBER || '1234',
 };
 
 export default config;
