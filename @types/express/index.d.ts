@@ -1,9 +1,9 @@
-import { AuthenticatedUser } from '../../src/apps/user/types';
+import { UserEntityPublic } from '../../src/schema/user.schema';
 
 declare global {
   namespace Express {
     interface Request {
-      user?: AuthenticatedUser;
+      user?: UserEntityPublic;
     }
   }
 }

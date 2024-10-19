@@ -3,7 +3,7 @@ import validate from '../routes/middlewares/validate';
 
 export const UserGender = { MALE: 'Male', FEMALE: 'Female' } as const;
 
-type UserGenderType = (typeof UserGender)[keyof typeof UserGender];
+export type UserGenderType = (typeof UserGender)[keyof typeof UserGender];
 
 export const UserProfileSchema = z
   .object({
@@ -11,7 +11,6 @@ export const UserProfileSchema = z
       Object.values(UserGender) as [UserGenderType, ...UserGenderType[]]
     ),
     birthday: z.date(),
-    profilePicture: z.string(),
     coverPicture: z.string(),
     timeZone: z.string(),
     bio: z.string().max(512),

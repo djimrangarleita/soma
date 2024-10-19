@@ -12,9 +12,10 @@
     "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx,json,css,scss,md}'",
     "lint": "eslint 'src/**/*.{ts,tsx,js,jsx}'",
     "lint:fix": "eslint 'src/**/*.{ts,tsx,js,jsx}' --fix",
-    "pm": "dotenv -e .env.local npx prisma migrate dev --name $migration_name && dotenv -e .env.local npx prisma generate",
+    "migrate": "dotenv -e .env.local npx prisma migrate dev --name $migration_name && dotenv -e .env.local npx prisma generate",
     "ps": "dotenv -e .env.local npx prisma studio",
-    "db:reset": "dotenv -e .env.local npx prisma migrate reset && dotenv -e .env.local npx prisma generate"
+    "db:reset": "dotenv -e .env.local npx prisma migrate reset && npm run migrate",
+    "fixtures:load": "npm run db:reset && dotenv -e .env.local npx ts-node src/fixtures"
   },
   "keywords": [],
   "author": "Djimra NGARLEITA",
@@ -32,18 +33,22 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.12.0",
+    "@faker-js/faker": "^9.0.3",
     "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.13",
     "@types/supertest": "^6.0.2",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.8.1",
     "@typescript-eslint/parser": "^8.8.1",
+    "dotenv-cli": "^7.4.2",
     "eslint": "^8.57.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-prettier": "^5.2.1",
+    "factory.ts": "^1.4.2",
     "globals": "^15.10.0",
     "jest": "^29.7.0",
     "nodemon": "^3.1.7",
@@ -52,6 +57,7 @@
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2",
-    "typescript-eslint": "^8.8.1"
+    "typescript-eslint": "^8.8.1",
+    "uuid": "^10.0.0"
   }
 }

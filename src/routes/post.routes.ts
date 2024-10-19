@@ -1,34 +1,33 @@
-import { Request, Response, Router } from 'express';
+import { Router } from 'express';
+import config from '../config';
+import * as postController from '../controllers/post.controller';
 import { postValidator } from '../schema/post.schema';
+import { isGranted } from './middlewares/requireAuth';
 
 const postRouter = Router();
 
-postRouter.get('/', (req: Request, res: Response) => {
-  res.send({ status: 'ok' });
-});
+postRouter.get('/', postController.getAll);
 
-postRouter.get('/:id', (req: Request, res: Response) => {
-  res.send({ status: 'ok' });
-});
+postRouter.get(`/:id(${config.APP_ID_VALIDATOR})`, postController.getItem);
 
 postRouter.post(
   '/',
+  isGranted(),
   postValidator.validateCreate,
-  (req: Request, res: Response) => {
-    res.status(201).send({ data: req.body });
-  }
+  postController.create
 );
 
 postRouter.patch(
-  '/:id',
+  `/:id(${config.APP_ID_VALIDATOR})`,
+  isGranted(),
   postValidator.validateUpdate,
-  (req: Request, res: Response) => {
-    res.status(200).send({ data: req.body });
-  }
+  postController.update
 );
 
-postRouter.delete('/:id', (req: Request, res: Response) => {
-  res.status(204).send({ status: 'ok' });
-});
+postRouter.delete(
+  `/:id(${config.APP_ID_VALIDATOR})`,
+  isGranted(),
+  postController.remove
+);
 
 export default postRouter;

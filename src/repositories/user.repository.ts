@@ -11,6 +11,7 @@ import DbError, {
 import {
   PartialUser,
   publicUser,
+  publicUserProfile,
   User,
   UserEntity,
   UserEntityPublic,
@@ -91,7 +92,15 @@ class UserRepository
     try {
       const user = await this.client.user.findUnique({
         where: { id },
-        select: publicUser,
+        select: {
+          ...publicUserProfile,
+          posts: {
+            include: {
+              _count: true,
+            },
+          },
+          _count: true,
+        },
       });
       return user;
     } catch (error) {
@@ -106,7 +115,7 @@ class UserRepository
     try {
       const user = await this.client.user.findUnique({
         where: { email },
-        select: publicUser,
+        select: publicUserProfile,
       });
       return user;
     } catch (error) {

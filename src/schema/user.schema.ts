@@ -3,7 +3,9 @@ import validate from '../routes/middlewares/validate';
 
 export const UserAccountStatus = ['CREATED', 'ACTIVATED', 'SUSPENDED'] as const;
 
-export const UserRole = ['USER', 'ADMIN'] as const;
+export const UserRole = { USER: 'USER', ADMIN: 'ADMIN' } as const;
+
+export type UserRoleType = (typeof UserRole)[keyof typeof UserRole];
 
 export const UserSchema = z
   .object({
@@ -11,9 +13,12 @@ export const UserSchema = z
     email: z.string().trim().email(),
     phoneNumber: z.string().trim().max(24).min(3),
     accountStatus: z.enum(UserAccountStatus).optional(),
-    role: z.enum(UserRole).optional(),
+    role: z
+      .enum(Object.values(UserRole) as [UserRoleType, ...UserRoleType[]])
+      .optional(),
     password: z.string().max(64).min(6),
     salt: z.string().optional(),
+    avatar: z.string().nullable().optional(),
   })
   .strict();
 
@@ -44,11 +49,18 @@ export const publicUser = {
   id: true,
   name: true,
   email: true,
+  avatar: true,
   phoneNumber: true,
   accountStatus: true,
   role: true,
   createdAt: true,
   updatedAt: true,
+};
+
+export const publicUserProfile = {
+  ...publicUser,
+  profile: true,
+  posts: true,
 };
 
 export const userValidator = {
