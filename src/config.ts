@@ -14,10 +14,11 @@ type Config = {
   DB_PASSWORD: string;
   APP_CLIENT_ORIGIN: string;
   AUTH_TOKEN_TTL: number;
-  ADMIN_NAME: string,
-  ADMIN_EMAIL: string,
-  ADMIN_PASSWORD: string,
-  ADMIN_PHONE_NUMBER: string,
+  ADMIN_NAME: string;
+  ADMIN_EMAIL: string;
+  ADMIN_PASSWORD: string;
+  ADMIN_PHONE_NUMBER: string;
+  APP_ID_VALIDATOR: string;
 };
 
 const config: Config = {
@@ -37,6 +38,7 @@ const config: Config = {
   ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'admin@soma.org',
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || 'password',
   ADMIN_PHONE_NUMBER: process.env.ADMIN_PHONE_NUMBER || '1234',
+  APP_ID_VALIDATOR: '[0-9a-fA-F-]+',
 };
 
 export default config;

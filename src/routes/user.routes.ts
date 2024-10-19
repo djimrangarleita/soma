@@ -1,11 +1,12 @@
 import { Router } from 'express';
+import config from '../config';
 import * as userController from '../controllers/user.controller';
-import { userValidator } from '../schema/user.schema';
+import { UserRole, userValidator } from '../schema/user.schema';
 import { isGranted } from './middlewares/requireAuth';
 
 const userRouter = Router();
 
-userRouter.get('/', isGranted('ADMIN'), userController.getAll);
+userRouter.get('/', isGranted(UserRole.ADMIN), userController.getAll);
 
 userRouter.post('/', userValidator.validateCreate, userController.register);
 
@@ -17,13 +18,21 @@ userRouter.post(
 
 userRouter.get('/me', isGranted(), userController.getProfile);
 
+userRouter.get(`/:id(${config.APP_ID_VALIDATOR})`, userController.getProfile);
+
 userRouter.patch(
-  '/:id',
+  `/:id(${config.APP_ID_VALIDATOR})`,
   isGranted(),
   userValidator.validateUpdate,
   userController.update
 );
 
-userRouter.delete('/:id', isGranted(), userController.remove);
+userRouter.delete(
+  `/:id(${config.APP_ID_VALIDATOR})`,
+  isGranted(UserRole.ADMIN),
+  userController.remove
+);
+
+userRouter.delete('/', isGranted(), userController.remove);
 
 export default userRouter;

@@ -1,20 +1,19 @@
 import { NextFunction, Request, Response } from 'express-serve-static-core';
 import createError from 'http-errors';
 import {
-  AppInvalidCredentialsError,
+  AppForbiddenOperation,
   AppValidationError,
   NotFoundError,
 } from '../common/appErrors';
-import DbError from '../common/dbErrors';
 import HttpStatus from '../common/httpStatus';
+import { UserRole } from '../schema/user.schema';
 import {
-  create,
+  create as createPost,
   edit,
   getCollection,
   getOneById,
   remove as removeUser,
-  login as userLogin,
-} from '../services/user.service';
+} from '../services/post.service';
 
 export const getAll = async (
   req: Request,
@@ -22,21 +21,23 @@ export const getAll = async (
   next: NextFunction
 ) => {
   try {
-    const users = await getCollection();
-    res.send(users);
+    const posts = await getCollection();
+    res.send(posts);
   } catch (error) {
     next(error);
   }
 };
 
-export const register = async (
+export const create = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const user = await create(req.body);
-    res.status(HttpStatus.Created.code).send(user);
+    const userId = req.user!.id;
+
+    const post = await createPost({ ...req.body, userId });
+    res.status(HttpStatus.Created.code).send(post);
   } catch (error) {
     if (error instanceof AppValidationError) {
       next(new createError.UnprocessableEntity(error.message));
@@ -46,17 +47,17 @@ export const register = async (
   }
 };
 
-export const getProfile = async (
+export const getItem = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const id = req.params.id || req.user!.id;
+    const { id } = req.params;
 
-    const userEntity = await getOneById(id, true);
+    const postEntity = await getOneById(id, true);
 
-    res.send(userEntity);
+    res.send(postEntity);
   } catch (error) {
     if (error instanceof NotFoundError) {
       next(new createError.NotFound());
@@ -73,8 +74,8 @@ export const update = async (
 ) => {
   try {
     const { id } = req.params;
-    const user = await edit(id, req.body);
-    res.send(user);
+    const post = await edit(id, req.body);
+    res.send(post);
   } catch (error) {
     if (error instanceof AppValidationError) {
       next(new createError.UnprocessableEntity(error.message));
@@ -92,31 +93,15 @@ export const remove = async (
   next: NextFunction
 ) => {
   try {
-    const id = req.params.id || req.user!.id;
-    await removeUser(id);
+    const { id } = req.params;
+    const { user } = req;
+    await removeUser(id, user!.id, user!.role === UserRole.ADMIN);
     res.status(HttpStatus.NoContent.code).send();
   } catch (error) {
     if (error instanceof NotFoundError) {
       next(new createError.BadRequest(error.message));
-    } else {
-      next(error);
-    }
-  }
-};
-
-export const login = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const token = await userLogin(req.body);
-    res.send({ token });
-  } catch (error) {
-    if (error instanceof AppInvalidCredentialsError) {
-      next(new createError.Unauthorized('Wrong credentials'));
-    } else if (error instanceof DbError) {
-      next(new createError.Unauthorized());
+    } else if (error instanceof AppForbiddenOperation) {
+      next(new createError.Forbidden());
     } else {
       next(error);
     }

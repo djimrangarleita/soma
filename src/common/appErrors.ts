@@ -40,3 +40,9 @@ export class AppWrongOrExpiredTokenError extends AppError {
     super(message);
   }
 }
+
+export class AppForbiddenOperation extends AppError {
+  constructor(message = 'Current user not allowed to perform this operation') {
+    super(message);
+  }
+}

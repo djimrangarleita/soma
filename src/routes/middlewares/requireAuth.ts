@@ -1,6 +1,10 @@
 import { NextFunction, Request, Response } from 'express-serve-static-core';
 import createError from 'http-errors';
-import { UserEntityPublic, UserRole } from '../../schema/user.schema';
+import {
+  UserEntityPublic,
+  UserRole,
+  UserRoleType,
+} from '../../schema/user.schema';
 import { loadUserFromToken } from '../../services/user.service';
 
 export const getUser = async (
@@ -8,7 +12,7 @@ export const getUser = async (
 ): Promise<UserEntityPublic | never> => loadUserFromToken(token);
 
 export const isGranted =
-  (role = 'USER') =>
+  (role: UserRoleType = UserRole.USER) =>
   async (req: Request, res: Response, next: NextFunction) => {
     let user: UserEntityPublic;
 
@@ -24,7 +28,7 @@ export const isGranted =
     try {
       user = await getUser(token!);
       // Auth required and user found but role mismatch and admin has all access
-      if (user.role !== role && user.role !== UserRole[1]) {
+      if (user.role !== role && user.role !== UserRole.ADMIN) {
         next(new createError.Forbidden());
         return;
       }

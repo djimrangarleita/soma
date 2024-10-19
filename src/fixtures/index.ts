@@ -1,11 +1,20 @@
 import dbClient from '../common/dbClient';
 import config from '../config';
 import { authentication, random } from '../lib/auth';
-import userFactory from './user.fixture';
-
+import { makeUserFixture } from './user.fixture';
 
 async function main() {
-  const users = userFactory.buildList(10);
+  const {
+    users,
+    usersProfile,
+    posts,
+    comments,
+    postLikes,
+    commentLikes,
+    books,
+    libraries,
+    notes,
+  } = makeUserFixture(10);
 
   const usalt = random();
 
@@ -21,12 +30,46 @@ async function main() {
         accountStatus: 'ACTIVATED',
       },
       ...users,
-    ]
+    ],
+  });
+
+  await dbClient.profile.createMany({
+    data: usersProfile,
+  });
+
+  await dbClient.book.createMany({
+    data: books,
+  });
+
+  await dbClient.post.createMany({
+    data: posts,
+  });
+
+  await dbClient.postLike.createMany({
+    data: postLikes,
+  });
+
+  await dbClient.comment.createMany({
+    data: comments,
+  });
+
+  await dbClient.commentLike.createMany({
+    data: commentLikes,
+  });
+
+  await dbClient.library.createMany({
+    data: libraries,
+  });
+
+  await dbClient.note.createMany({
+    data: notes,
   });
 }
 
-main().then(() => {
-  console.info('Users created');
-}).catch(error => {
-  console.error(error);
-});
+main()
+  .then(() => {
+    console.info('Fixtures generated');
+  })
+  .catch(error => {
+    console.error(error);
+  });

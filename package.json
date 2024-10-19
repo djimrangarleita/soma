@@ -12,9 +12,9 @@
     "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx,json,css,scss,md}'",
     "lint": "eslint 'src/**/*.{ts,tsx,js,jsx}'",
     "lint:fix": "eslint 'src/**/*.{ts,tsx,js,jsx}' --fix",
-    "pm": "dotenv -e .env.local npx prisma migrate dev --name $migration_name && dotenv -e .env.local npx prisma generate",
+    "migrate": "dotenv -e .env.local npx prisma migrate dev --name $migration_name && dotenv -e .env.local npx prisma generate",
     "ps": "dotenv -e .env.local npx prisma studio",
-    "db:reset": "dotenv -e .env.local npx prisma migrate reset && dotenv -e .env.local npx prisma generate",
+    "db:reset": "dotenv -e .env.local npx prisma migrate reset && npm run migrate",
     "fixtures:load": "npm run db:reset && dotenv -e .env.local npx ts-node src/fixtures"
   },
   "keywords": [],

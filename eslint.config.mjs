@@ -71,17 +71,17 @@ export default [
       'no-param-reassign': 'off',
       'no-use-before-define': 'off',
       'import/prefer-default-export': 'off',
-
       'max-classes-per-file': ['error', { ignoreExpressions: true, max: 2 }],
       'no-useless-constructor': 'warn',
+      'no-plusplus': 'off',
     },
-    overrides: [
-      {
-        files: ['src/fixtures/**/*'],
-        rules: {
-          'import/no-extraneous-dependencies': 'off',
-        },
-      }
-    ],
+  },
+  {
+    // Overrides
+    files: ['**/fixtures/**/*'],
+    rules: {
+      'no-restricted-syntax': 'off',
+      'import/no-extraneous-dependencies': 'off',
+    },
   },
 ];
