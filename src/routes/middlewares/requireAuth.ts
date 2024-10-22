@@ -41,3 +41,24 @@ export const isGranted =
 
     next();
   };
+
+export const attachUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const token = req.headers['x-token'] as string;
+  console.log('X token value is ', token);
+  if (!token) {
+    next();
+  } else {
+    try {
+      const user = await getUser(token);
+      req.user = user;
+    } catch (error) {
+      const err = error as Error;
+      console.error(err);
+    }
+    next();
+  }
+};

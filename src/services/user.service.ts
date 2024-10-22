@@ -13,12 +13,12 @@ import config from '../config';
 import { authentication, random } from '../lib/auth';
 import userRepository from '../repositories/user.repository';
 import {
+  AnyUser,
   LoginCredentials,
   User,
   UserEntityPublic,
 } from '../schema/user.schema';
 
-// TODO: Catch PrismaClientInitializationError at app init
 export const create = async (
   userDoc: User
 ): Promise<UserEntityPublic | never> => {
@@ -74,10 +74,20 @@ export const remove = async (id: string): Promise<void | never> => {
   }
 };
 
-export const getCollection = async (): Promise<UserEntityPublic[] | never> => {
+export const getCollection = async (
+  currentUserId: string | undefined
+): Promise<UserEntityPublic[] | never> => {
   try {
+    const result: UserEntityPublic[] = [];
     const users = await userRepository.find();
-    return users;
+    users.forEach(user => {
+      const res = isFollowingIsFollowed(
+        user,
+        currentUserId
+      ) as UserEntityPublic;
+      result.push(res);
+    });
+    return result;
   } catch (error) {
     if (error instanceof DbError) {
       throw new AppError(error.message);
@@ -88,12 +98,20 @@ export const getCollection = async (): Promise<UserEntityPublic[] | never> => {
 
 export const getOneById = async (
   id: string,
+  currentUserId: string | undefined,
   orThrow = false
 ): Promise<UserEntityPublic | null | never> => {
   try {
     const user = await userRepository.findOneById(id);
     if (!user && orThrow) {
       throw new NotFoundError(`No user entry corresponds to the id: ${id}`);
+    }
+    if (user) {
+      const result = isFollowingIsFollowed(
+        user,
+        currentUserId
+      ) as UserEntityPublic;
+      return result;
     }
     return user;
   } catch (error) {
@@ -106,6 +124,7 @@ export const getOneById = async (
 
 export const getOneByEmail = async (
   email: string,
+  currentUserId: string | undefined,
   orThrow = false
 ): Promise<UserEntityPublic | null | never> => {
   try {
@@ -114,6 +133,13 @@ export const getOneByEmail = async (
       throw new NotFoundError(
         `No user entry corresponds to the email: ${email}`
       );
+    }
+    if (user) {
+      const result = isFollowingIsFollowed(
+        user,
+        currentUserId
+      ) as UserEntityPublic;
+      return result;
     }
     return user;
   } catch (error) {
@@ -124,7 +150,9 @@ export const getOneByEmail = async (
   }
 };
 
-export const login = async (credentials: LoginCredentials): Promise<string> => {
+export const login = async (
+  credentials: LoginCredentials
+): Promise<{ token: string; id: string; avatar?: string | null }> => {
   const user = await userRepository.loadUser(credentials.email);
   if (!user) {
     throw new AppInvalidCredentialsError('User not found');
@@ -145,7 +173,7 @@ export const login = async (credentials: LoginCredentials): Promise<string> => {
     config.AUTH_TOKEN_TTL
   );
 
-  return authToken;
+  return { token: authToken, id: user.id, avatar: user.avatar };
 };
 
 export const loadUserFromToken = async (
@@ -162,6 +190,39 @@ export const loadUserFromToken = async (
   if (!user) {
     throw new NotFoundError('No user found');
   }
+
+  return user;
+};
+
+export const logout = async (authToken: string): Promise<void> => {
+  if (!authToken) {
+    throw new AppInvalidCredentialsError('User not found');
+  }
+
+  await redisClient.redisClient!.del(`authToken:${authToken}`);
+};
+
+export const follow = async (
+  userId: string,
+  followinfId: string
+): Promise<User | null | never> => {
+  const user = await userRepository.addFollow(userId, followinfId);
+  return user;
+};
+
+export const isFollowingIsFollowed = (
+  user: AnyUser,
+  currentUserId?: string
+) => {
+  const isFollowed = user.followers?.some(
+    follower => follower.id === currentUserId
+  );
+  const isFollowing = user.following?.some(
+    following => following.id === currentUserId
+  );
+
+  user.isFollowing = isFollowing;
+  user.isFollowed = isFollowed;
 
   return user;
 };

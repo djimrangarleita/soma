@@ -21,7 +21,7 @@ export const getAll = async (
   next: NextFunction
 ) => {
   try {
-    const posts = await getCollection();
+    const posts = await getCollection(req.user?.id);
     res.send(posts);
   } catch (error) {
     next(error);
@@ -55,7 +55,7 @@ export const getItem = async (
   try {
     const { id } = req.params;
 
-    const postEntity = await getOneById(id, true);
+    const postEntity = await getOneById(id, req.user?.id, true);
 
     res.send(postEntity);
   } catch (error) {

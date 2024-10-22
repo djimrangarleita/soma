@@ -31,6 +31,32 @@ class PostRepository
     try {
       const post = await this.client.post.create({
         data: postDoc,
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+              _count: true,
+              followers: {
+                select: {
+                  id: true,
+                },
+              },
+              following: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+          _count: {
+            select: {
+              likes: true,
+              comments: true,
+            },
+          },
+        },
       });
       return post;
     } catch (error) {
@@ -50,6 +76,64 @@ class PostRepository
       const post = await this.client.post.update({
         where: { id },
         data: postDoc,
+
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+              _count: true,
+              followers: {
+                select: {
+                  id: true,
+                },
+              },
+              following: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+          comments: {
+            select: {
+              text: true,
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  avatar: true,
+                  _count: true,
+                },
+              },
+              createdAt: true,
+              _count: {
+                select: {
+                  likes: true,
+                  children: true,
+                },
+              },
+            },
+          },
+          likes: {
+            take: 5,
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  avatar: true,
+                },
+              },
+            },
+          },
+          _count: {
+            select: {
+              likes: true,
+              comments: true,
+            },
+          },
+        },
       });
       return post;
     } catch (error) {
@@ -82,6 +166,24 @@ class PostRepository
       const post = await this.client.post.findUnique({
         where: { id },
         include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+              _count: true,
+              followers: {
+                select: {
+                  id: true,
+                },
+              },
+              following: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
           comments: {
             select: {
               text: true,
@@ -89,6 +191,8 @@ class PostRepository
                 select: {
                   id: true,
                   name: true,
+                  avatar: true,
+                  _count: true,
                 },
               },
               createdAt: true,
@@ -96,6 +200,17 @@ class PostRepository
                 select: {
                   likes: true,
                   children: true,
+                },
+              },
+            },
+          },
+          likes: {
+            take: 5,
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  avatar: true,
                 },
               },
             },
@@ -125,12 +240,33 @@ class PostRepository
     try {
       const posts = await this.client.post.findMany({
         include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+              _count: true,
+              followers: {
+                select: {
+                  id: true,
+                },
+              },
+              following: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
           _count: {
             select: {
               likes: true,
               comments: true,
             },
           },
+        },
+        orderBy: {
+          createdAt: 'desc',
         },
       });
       return posts;

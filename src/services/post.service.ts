@@ -9,6 +9,7 @@ import DbError, {
 } from '../common/dbErrors';
 import postRepository from '../repositories/post.repository';
 import { Post, PostEntity, PostEntityPublic } from '../schema/post.schema';
+import { isFollowingIsFollowed } from './user.service';
 
 export const create = async (
   postDoc: Post & { userId: string }
@@ -58,7 +59,7 @@ export const remove = async (
       await postRepository.delete(id);
       return;
     }
-    const post = await getOneById(id, true);
+    const post = await getOneById(id, undefined, true);
     if (post!.userId !== userId) {
       throw new AppForbiddenOperation();
     }
@@ -71,9 +72,15 @@ export const remove = async (
   }
 };
 
-export const getCollection = async (): Promise<PostEntity[] | never> => {
+export const getCollection = async (
+  currentUserId?: string
+): Promise<PostEntity[] | never> => {
   try {
     const posts = await postRepository.find();
+    posts.forEach(post => {
+      const user = isFollowingIsFollowed(post.user, currentUserId);
+      post.user = user;
+    });
     return posts;
   } catch (error) {
     if (error instanceof DbError) {
@@ -85,12 +92,17 @@ export const getCollection = async (): Promise<PostEntity[] | never> => {
 
 export const getOneById = async (
   id: string,
+  currentUserId?: string,
   orThrow = false
 ): Promise<PostEntityPublic | null | never> => {
   try {
     const post = await postRepository.findOneById(id);
     if (!post && orThrow) {
       throw new NotFoundError(`No post entry corresponds to the id: ${id}`);
+    }
+    if (post) {
+      const user = isFollowingIsFollowed(post.user, currentUserId);
+      post.user = user;
     }
     return post;
   } catch (error) {

@@ -2,13 +2,17 @@ import { Router } from 'express';
 import config from '../config';
 import * as postController from '../controllers/post.controller';
 import { postValidator } from '../schema/post.schema';
-import { isGranted } from './middlewares/requireAuth';
+import { attachUser, isGranted } from './middlewares/requireAuth';
 
 const postRouter = Router();
 
-postRouter.get('/', postController.getAll);
+postRouter.get('/', attachUser, postController.getAll);
 
-postRouter.get(`/:id(${config.APP_ID_VALIDATOR})`, postController.getItem);
+postRouter.get(
+  `/:id(${config.APP_ID_VALIDATOR})`,
+  attachUser,
+  postController.getItem
+);
 
 postRouter.post(
   '/',
