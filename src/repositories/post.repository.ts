@@ -186,6 +186,7 @@ class PostRepository
           },
           comments: {
             select: {
+              id: true,
               text: true,
               user: {
                 select: {
@@ -202,6 +203,9 @@ class PostRepository
                   children: true,
                 },
               },
+            },
+            orderBy: {
+              createdAt: 'desc',
             },
           },
           likes: {

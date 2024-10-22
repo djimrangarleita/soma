@@ -79,7 +79,7 @@ export const getCollection = async (
 ): Promise<UserEntityPublic[] | never> => {
   try {
     const result: UserEntityPublic[] = [];
-    const users = await userRepository.find();
+    const users = await userRepository.find(currentUserId);
     users.forEach(user => {
       const res = isFollowingIsFollowed(
         user,
