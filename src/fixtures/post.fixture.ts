@@ -3,7 +3,7 @@ import * as Factory from 'factory.ts';
 import getRandomNum from '../lib/getRandomNum';
 import { PostEntity } from '../schema/post.schema';
 
-export const postFactory = Factory.Sync.makeFactory<PostEntity>({
+export const postFactory = Factory.Sync.makeFactory<Omit<PostEntity, 'user'>>({
   id: Factory.each(() => faker.string.uuid()),
   text: Factory.each(() => faker.lorem.sentences()),
   reference: Factory.each(() => faker.lorem.words({ min: 1, max: 5 })),

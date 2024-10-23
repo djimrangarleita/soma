@@ -79,7 +79,7 @@ class PostCommentRepository
    * @returns {PostEntity[]} list of posts
    * @throws {DbError} Will throw an error if request fails
    */
-  async find(): Promise<PostEntity[] | never> {
+  async find(): Promise<{ collection: PostEntity[] | never; total: number }> {
     console.log(this.client);
     throw new Error('Not implemented');
   }

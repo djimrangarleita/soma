@@ -166,9 +166,15 @@ class UserRepository
    * @returns {UserEntityPublic[]} list of users
    * @throws {DbError} Will throw an error if request fails
    */
-  async find(userId?: string): Promise<UserEntityPublic[] | never> {
+  async find(
+    userId?: string,
+    take?: number,
+    skip?: number
+  ): Promise<{ collection: UserEntityPublic[] | never; total: number }> {
     try {
       const users = await this.client.user.findMany({
+        take,
+        skip,
         where: {
           id: {
             not: userId,
@@ -196,7 +202,8 @@ class UserRepository
           createdAt: 'desc',
         },
       });
-      return users;
+      const total = await this.client.user.count();
+      return { collection: users, total };
     } catch (error) {
       const err = error as Error;
       throw new DbError(err.message);

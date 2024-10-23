@@ -24,8 +24,19 @@ export const getAll = async (
   next: NextFunction
 ) => {
   try {
-    const users = await getCollection(req.user?.id);
-    res.send(users);
+    const page = Number(req.query.page as string) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+    const { users, total } = await getCollection(req.user?.id, limit, skip);
+    res.send({
+      users,
+      meta: {
+        total,
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        pageSize: limit,
+      },
+    });
   } catch (error) {
     next(error);
   }

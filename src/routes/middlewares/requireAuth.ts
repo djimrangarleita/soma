@@ -48,7 +48,6 @@ export const attachUser = async (
   next: NextFunction
 ) => {
   const token = req.headers['x-token'] as string;
-  console.log('X token value is ', token);
   if (!token) {
     next();
   } else {

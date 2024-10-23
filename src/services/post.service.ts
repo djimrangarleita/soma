@@ -73,15 +73,21 @@ export const remove = async (
 };
 
 export const getCollection = async (
-  currentUserId?: string
-): Promise<PostEntity[] | never> => {
+  currentUserId?: string,
+  take?: number,
+  skip?: number
+): Promise<{ posts: PostEntity[] | never; total: number }> => {
   try {
-    const posts = await postRepository.find();
-    posts.forEach(post => {
+    const { collection, total } = await postRepository.find(
+      currentUserId,
+      take,
+      skip
+    );
+    collection.forEach(post => {
       const user = isFollowingIsFollowed(post.user, currentUserId);
       post.user = user;
     });
-    return posts;
+    return { posts: collection, total };
   } catch (error) {
     if (error instanceof DbError) {
       throw new AppError(error.message);

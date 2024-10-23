@@ -240,9 +240,15 @@ class PostRepository
    * @returns {PostEntity[]} list of posts
    * @throws {DbError} Will throw an error if request fails
    */
-  async find(): Promise<PostEntity[] | never> {
+  async find(
+    currentUserId?: string,
+    take?: number,
+    skip?: number
+  ): Promise<{ collection: PostEntity[] | never; total: number }> {
     try {
       const posts = await this.client.post.findMany({
+        take,
+        skip,
         include: {
           user: {
             select: {
@@ -273,7 +279,8 @@ class PostRepository
           createdAt: 'desc',
         },
       });
-      return posts;
+      const total = await this.client.post.count();
+      return { collection: posts, total };
     } catch (error) {
       const err = error as Error;
       throw new DbError(err.message);
