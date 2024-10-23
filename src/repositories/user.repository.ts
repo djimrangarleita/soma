@@ -100,6 +100,20 @@ class UserRepository
             },
           },
           _count: true,
+          followers: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+            },
+          },
+          following: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+            },
+          },
         },
       });
       return user;
@@ -115,7 +129,29 @@ class UserRepository
     try {
       const user = await this.client.user.findUnique({
         where: { email },
-        select: publicUserProfile,
+        select: {
+          ...publicUserProfile,
+          posts: {
+            include: {
+              _count: true,
+            },
+          },
+          _count: true,
+          followers: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+            },
+          },
+          following: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+            },
+          },
+        },
       });
       return user;
     } catch (error) {
@@ -130,10 +166,44 @@ class UserRepository
    * @returns {UserEntityPublic[]} list of users
    * @throws {DbError} Will throw an error if request fails
    */
-  async find(): Promise<UserEntityPublic[] | never> {
+  async find(
+    userId?: string,
+    take?: number,
+    skip?: number
+  ): Promise<{ collection: UserEntityPublic[] | never; total: number }> {
     try {
-      const users = await this.client.user.findMany({ select: publicUser });
-      return users;
+      const users = await this.client.user.findMany({
+        take,
+        skip,
+        where: {
+          id: {
+            not: userId,
+          },
+        },
+        select: {
+          ...publicUser,
+          _count: true,
+          followers: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+            },
+          },
+          following: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+      const total = await this.client.user.count();
+      return { collection: users, total };
     } catch (error) {
       const err = error as Error;
       throw new DbError(err.message);
@@ -153,6 +223,48 @@ class UserRepository
       const err = error as Error;
       throw new DbError(err.message);
     }
+  }
+
+  async isFollowedByCurrentUser(
+    userId: string,
+    followingId: string
+  ): Promise<boolean | never> {
+    const user = await this.client.user.findUnique({
+      where: {
+        id: userId,
+        following: {
+          some: {
+            id: followingId,
+          },
+        },
+      },
+    });
+
+    return user !== null;
+  }
+
+  async addFollow(
+    userId: string,
+    followingId: string
+  ): Promise<UserEntity | null | never> {
+    let key = 'connect';
+    const following = await this.isFollowedByCurrentUser(userId, followingId);
+    if (following) {
+      key = 'disconnect';
+    }
+    const updatedUser = await this.client.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        following: {
+          [key]: {
+            id: followingId,
+          },
+        },
+      },
+    });
+    return updatedUser;
   }
 }
 

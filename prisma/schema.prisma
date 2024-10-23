@@ -33,6 +33,10 @@ model User {
   postLikes     PostLike[]
   commentLikes  CommentLike[]
 
+  // Many-to-many self-relation
+  following User[] @relation("UserFollowing", map: "User_Following")
+  followers User[] @relation("UserFollowing", map: "User_Followers")
+
   @@map("user")
 }
 

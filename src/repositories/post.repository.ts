@@ -31,6 +31,32 @@ class PostRepository
     try {
       const post = await this.client.post.create({
         data: postDoc,
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+              _count: true,
+              followers: {
+                select: {
+                  id: true,
+                },
+              },
+              following: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+          _count: {
+            select: {
+              likes: true,
+              comments: true,
+            },
+          },
+        },
       });
       return post;
     } catch (error) {
@@ -50,6 +76,64 @@ class PostRepository
       const post = await this.client.post.update({
         where: { id },
         data: postDoc,
+
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+              _count: true,
+              followers: {
+                select: {
+                  id: true,
+                },
+              },
+              following: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+          comments: {
+            select: {
+              text: true,
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  avatar: true,
+                  _count: true,
+                },
+              },
+              createdAt: true,
+              _count: {
+                select: {
+                  likes: true,
+                  children: true,
+                },
+              },
+            },
+          },
+          likes: {
+            take: 5,
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  avatar: true,
+                },
+              },
+            },
+          },
+          _count: {
+            select: {
+              likes: true,
+              comments: true,
+            },
+          },
+        },
       });
       return post;
     } catch (error) {
@@ -82,13 +166,34 @@ class PostRepository
       const post = await this.client.post.findUnique({
         where: { id },
         include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+              _count: true,
+              followers: {
+                select: {
+                  id: true,
+                },
+              },
+              following: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
           comments: {
             select: {
+              id: true,
               text: true,
               user: {
                 select: {
                   id: true,
                   name: true,
+                  avatar: true,
+                  _count: true,
                 },
               },
               createdAt: true,
@@ -96,6 +201,20 @@ class PostRepository
                 select: {
                   likes: true,
                   children: true,
+                },
+              },
+            },
+            orderBy: {
+              createdAt: 'desc',
+            },
+          },
+          likes: {
+            take: 5,
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  avatar: true,
                 },
               },
             },
@@ -121,10 +240,34 @@ class PostRepository
    * @returns {PostEntity[]} list of posts
    * @throws {DbError} Will throw an error if request fails
    */
-  async find(): Promise<PostEntity[] | never> {
+  async find(
+    currentUserId?: string,
+    take?: number,
+    skip?: number
+  ): Promise<{ collection: PostEntity[] | never; total: number }> {
     try {
       const posts = await this.client.post.findMany({
+        take,
+        skip,
         include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+              _count: true,
+              followers: {
+                select: {
+                  id: true,
+                },
+              },
+              following: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
           _count: {
             select: {
               likes: true,
@@ -132,8 +275,12 @@ class PostRepository
             },
           },
         },
+        orderBy: {
+          createdAt: 'desc',
+        },
       });
-      return posts;
+      const total = await this.client.post.count();
+      return { collection: posts, total };
     } catch (error) {
       const err = error as Error;
       throw new DbError(err.message);

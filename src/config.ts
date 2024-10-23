@@ -19,6 +19,7 @@ type Config = {
   ADMIN_PASSWORD: string;
   ADMIN_PHONE_NUMBER: string;
   APP_ID_VALIDATOR: string;
+  APP_SERVER: string;
 };
 
 const config: Config = {
@@ -39,6 +40,9 @@ const config: Config = {
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || 'password',
   ADMIN_PHONE_NUMBER: process.env.ADMIN_PHONE_NUMBER || '1234',
   APP_ID_VALIDATOR: '[0-9a-fA-F-]+',
+  get APP_SERVER() {
+    return `http://localhost:${this.APP_PORT}/api`;
+  },
 };
 
 export default config;

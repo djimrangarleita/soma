@@ -41,6 +41,10 @@ export type UserEntityPublic = Omit<User, 'password' | 'salt'> & {
   id: string;
   createdAt: Date;
   updatedAt: Date;
+  followers?: { name: string; avatar: string | null; id: string }[];
+  following?: { name: string; avatar: string | null; id: string }[];
+  isFollowing?: boolean;
+  isFollowed?: boolean;
 };
 
 export type LoginCredentials = z.infer<typeof LoginCredentialsSchema>;
@@ -61,6 +65,18 @@ export const publicUserProfile = {
   ...publicUser,
   profile: true,
   posts: true,
+};
+
+export type AnyUser = {
+  id: string;
+  followers?: {
+    id: string;
+  }[];
+  following?: {
+    id: string;
+  }[];
+  isFollowing?: boolean;
+  isFollowed?: boolean;
 };
 
 export const userValidator = {

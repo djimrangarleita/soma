@@ -1,18 +1,20 @@
 import { z } from 'zod';
 import validate from '../routes/middlewares/validate';
 import { PostComment } from './comment.schema';
+import { AnyUser } from './user.schema';
 
 type PostDynamic = {
   id: string;
-  medias?: string[];
   userId: string;
+  user: AnyUser;
 };
 
 export const PostSchema = z
   .object({
-    text: z.string().trim().max(1000),
+    text: z.string().trim().min(3).max(1000),
     reference: z.string().trim().max(128).nullable().optional(),
-    bookId: z.string().nullable().optional(),
+    medias: z.array(z.string()).optional(),
+    bookId: z.string().optional().nullable(),
   })
   .strict();
 

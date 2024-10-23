@@ -1,6 +1,12 @@
 import cors from 'cors';
 import express from 'express';
-import { Express } from 'express-serve-static-core';
+import {
+  Express,
+  NextFunction,
+  Request,
+  Response,
+} from 'express-serve-static-core';
+import path from 'path';
 import config from './config';
 import appRouter from './routes';
 import handleErrors, {
@@ -10,9 +16,16 @@ import handleErrors, {
 export default function startServer(appPort?: string): Express {
   const app: Express = express();
 
-  app.use(cors({ origin: config.APP_CLIENT_ORIGIN, credentials: true }));
+  app.use(cors());
+
+  app.use('*', (req: Request, res: Response, next: NextFunction) => {
+    console.log(`${req.method} ${req.baseUrl}  ${req.body}`);
+    next();
+  });
 
   app.use(express.json());
+
+  app.use('/api/media', express.static(path.join(__dirname, '..', 'media')));
 
   app.use('/api', appRouter);
 

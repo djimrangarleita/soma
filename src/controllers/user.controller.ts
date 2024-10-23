@@ -8,12 +8,14 @@ import {
 import DbError from '../common/dbErrors';
 import HttpStatus from '../common/httpStatus';
 import {
+  follow as addFollow,
   create,
   edit,
   getCollection,
   getOneById,
   remove as removeUser,
   login as userLogin,
+  logout as userLogout,
 } from '../services/user.service';
 
 export const getAll = async (
@@ -22,8 +24,19 @@ export const getAll = async (
   next: NextFunction
 ) => {
   try {
-    const users = await getCollection();
-    res.send(users);
+    const page = Number(req.query.page as string) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+    const { users, total } = await getCollection(req.user?.id, limit, skip);
+    res.send({
+      users,
+      meta: {
+        total,
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        pageSize: limit,
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -54,7 +67,7 @@ export const getProfile = async (
   try {
     const id = req.params.id || req.user!.id;
 
-    const userEntity = await getOneById(id, true);
+    const userEntity = await getOneById(id, req.user?.id, true);
 
     res.send(userEntity);
   } catch (error) {
@@ -110,8 +123,8 @@ export const login = async (
   next: NextFunction
 ) => {
   try {
-    const token = await userLogin(req.body);
-    res.send({ token });
+    const user = await userLogin(req.body);
+    res.send(user);
   } catch (error) {
     if (error instanceof AppInvalidCredentialsError) {
       next(new createError.Unauthorized('Wrong credentials'));
@@ -120,5 +133,42 @@ export const login = async (
     } else {
       next(error);
     }
+  }
+};
+
+export const logout = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const token = req.headers['x-token'] as string | undefined;
+    if (token) {
+      await userLogout(token);
+    }
+    res.status(200).send();
+  } catch (error) {
+    if (error instanceof AppInvalidCredentialsError) {
+      next(new createError.Unauthorized());
+    } else if (error instanceof DbError) {
+      next(new createError.Unauthorized());
+    } else {
+      next(error);
+    }
+  }
+};
+
+export const follow = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.id;
+    const user = await addFollow(userId!, id);
+    res.send(user);
+  } catch (error) {
+    next(error);
   }
 };

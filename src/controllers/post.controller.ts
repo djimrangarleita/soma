@@ -21,8 +21,19 @@ export const getAll = async (
   next: NextFunction
 ) => {
   try {
-    const posts = await getCollection();
-    res.send(posts);
+    const page = Number(req.query.page as string) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+    const { posts, total } = await getCollection(req.user?.id, limit, skip);
+    res.send({
+      posts,
+      meta: {
+        total,
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        pageSize: limit,
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -55,7 +66,7 @@ export const getItem = async (
   try {
     const { id } = req.params;
 
-    const postEntity = await getOneById(id, true);
+    const postEntity = await getOneById(id, req.user?.id, true);
 
     res.send(postEntity);
   } catch (error) {
