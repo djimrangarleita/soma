@@ -184,30 +184,6 @@ class PostRepository
               },
             },
           },
-          comments: {
-            select: {
-              id: true,
-              text: true,
-              user: {
-                select: {
-                  id: true,
-                  name: true,
-                  avatar: true,
-                  _count: true,
-                },
-              },
-              createdAt: true,
-              _count: {
-                select: {
-                  likes: true,
-                  children: true,
-                },
-              },
-            },
-            orderBy: {
-              createdAt: 'desc',
-            },
-          },
           likes: {
             take: 5,
             select: {

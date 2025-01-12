@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import validate from '../routes/middlewares/validate';
-import { PostComment } from './comment.schema';
 import { AnyUser } from './user.schema';
 
 type PostDynamic = {
@@ -27,23 +26,9 @@ export type PartialPost = z.infer<typeof PartialPostSchema>;
 
 export type PostEntity = Post & PostDynamic;
 
-export type PostEntityPublic = Post &
-  PostDynamic & {
-    comments: PostComment[] | null;
-  };
+export type PostEntityPublic = Post & PostDynamic;
 
 export const publicPost = {
-  comments: {
-    text: true,
-    parentId: true,
-    select: {
-      _count: {
-        select: {
-          likes: true,
-        },
-      },
-    },
-  },
   likes: true,
 };
 
