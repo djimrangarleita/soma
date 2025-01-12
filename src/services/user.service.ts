@@ -210,9 +210,9 @@ export const logout = async (authToken: string): Promise<void> => {
 
 export const follow = async (
   userId: string,
-  followinfId: string
+  followingId: string
 ): Promise<User | null | never> => {
-  const user = await userRepository.addFollow(userId, followinfId);
+  const user = await userRepository.addFollow(userId, followingId);
   return user;
 };
 

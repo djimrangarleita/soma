@@ -4,6 +4,7 @@ import validate from '../routes/middlewares/validate';
 type PostCommentDynamic = {
   id: string;
   userId: string;
+  isLiked?: boolean;
 };
 
 export const PostCommentSchema = z

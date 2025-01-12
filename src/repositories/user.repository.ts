@@ -97,6 +97,14 @@ class UserRepository
           posts: {
             include: {
               _count: true,
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  avatar: true,
+                  _count: true,
+                },
+              },
             },
           },
           _count: true,

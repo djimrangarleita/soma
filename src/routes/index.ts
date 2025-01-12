@@ -12,6 +12,6 @@ appRouter.use('/posts', postRouter);
 
 appRouter.use('/upload', fileRouter);
 
-appRouter.use(`/comment`, commentRouter);
+appRouter.use(`/comments`, commentRouter);
 
 export default appRouter;

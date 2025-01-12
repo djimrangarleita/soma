@@ -1,5 +1,9 @@
 # Soma Project Setup
 
+[Client repository](https://github.com/djimrangarleita/soma-client.git)
+
+Gen Z struggles with attention spans, vocabulary, and academic performance due to excessive social media use. Soma addresses this by merging social media's appeal with books, providing a platform for sharing literary discoveries, meaningful discussions, and fostering a love for reading. It transforms digital habits, inspiring personal growth and academic improvement through reading.
+
 [Entity relation diagram](https://drive.google.com/file/d/1Y6G4o-uO82HyvormPc28FqTLDdJbuopT/view?usp=drive_link)
 ![Entity relation diagram](docs/soma.webp)
 
@@ -63,7 +67,7 @@ npm run start:dev
 
 ---
 
-## Client Server Setup
+## Client App Setup
 
 ### 1. Clone the Client Repository
 

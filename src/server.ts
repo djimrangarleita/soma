@@ -18,6 +18,7 @@ export default function startServer(appPort?: string): Express {
 
   app.use(cors());
 
+  // TODO: Don't log PII
   app.use('*', (req: Request, res: Response, next: NextFunction) => {
     console.log(`${req.method} ${req.baseUrl}  ${req.body}`);
     next();

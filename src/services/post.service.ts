@@ -83,11 +83,19 @@ export const getCollection = async (
       take,
       skip
     );
-    collection.forEach(post => {
-      const user = isFollowingIsFollowed(post.user, currentUserId);
-      post.user = user;
-    });
-    return { posts: collection, total };
+    // TODO: Find a way to optimize this block
+    const posts = await Promise.all(
+      collection.map(async post => {
+        post.user = isFollowingIsFollowed(post.user, currentUserId);
+        post.isLiked = await postRepository.isLikedByCurrentUser(
+          post.id,
+          currentUserId
+        );
+
+        return post;
+      })
+    );
+    return { posts, total };
   } catch (error) {
     if (error instanceof DbError) {
       throw new AppError(error.message);
@@ -107,11 +115,37 @@ export const getOneById = async (
       throw new NotFoundError(`No post entry corresponds to the id: ${id}`);
     }
     if (post) {
-      const user = isFollowingIsFollowed(post.user, currentUserId);
-      post.user = user;
+      post.user = isFollowingIsFollowed(post.user, currentUserId);
+      post.isLiked = await postRepository.isLikedByCurrentUser(
+        post.id,
+        currentUserId
+      );
     }
     return post;
   } catch (error) {
+    if (error instanceof DbError) {
+      throw new AppError(error.message);
+    }
+    throw error;
+  }
+};
+
+export const like = async (
+  id: string,
+  userId: string
+): Promise<PostEntityPublic | null | never> => {
+  try {
+    const post = await postRepository.addLike(id, userId);
+    post!.isLiked = await postRepository.isLikedByCurrentUser(id, userId);
+
+    return post;
+  } catch (error) {
+    if (error instanceof ValidationConstraintError) {
+      throw new AppValidationError(error.message);
+    }
+    if (error instanceof DbNotFoundError) {
+      throw new NotFoundError(`No entry corresponds to the id: ${id}`);
+    }
     if (error instanceof DbError) {
       throw new AppError(error.message);
     }

@@ -28,6 +28,12 @@ postRouter.patch(
   postController.update
 );
 
+postRouter.patch(
+  `/:id(${config.APP_ID_VALIDATOR})/like`,
+  isGranted(),
+  postController.like
+);
+
 postRouter.delete(
   `/:id(${config.APP_ID_VALIDATOR})`,
   isGranted(),
