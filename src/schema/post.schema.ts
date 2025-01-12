@@ -7,6 +7,7 @@ type PostDynamic = {
   id: string;
   userId: string;
   user: AnyUser;
+  isLiked?: boolean;
 };
 
 export const PostSchema = z

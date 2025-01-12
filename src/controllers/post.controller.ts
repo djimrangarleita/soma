@@ -12,6 +12,7 @@ import {
   edit,
   getCollection,
   getOneById,
+  like as likePost,
   remove as removeUser,
 } from '../services/post.service';
 
@@ -113,6 +114,24 @@ export const remove = async (
       next(new createError.BadRequest(error.message));
     } else if (error instanceof AppForbiddenOperation) {
       next(new createError.Forbidden());
+    } else {
+      next(error);
+    }
+  }
+};
+
+export const like = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const { user } = req;
+    const post = await likePost(id, user!.id);
+
+    res.send(post);
+  } catch (error) {
+    if (error instanceof AppValidationError) {
+      next(new createError.UnprocessableEntity(error.message));
+    } else if (error instanceof NotFoundError) {
+      next(new createError.BadRequest(error.message));
     } else {
       next(error);
     }

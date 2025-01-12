@@ -286,6 +286,59 @@ class PostRepository
       throw new DbError(err.message);
     }
   }
+
+  async isLikedByCurrentUser(
+    postId: string,
+    userId?: string
+  ): Promise<boolean | never> {
+    if (!userId) {
+      return false;
+    }
+    const postLike = await this.client.postLike.findUnique({
+      where: {
+        postId_userId: { postId, userId },
+      },
+    });
+
+    return postLike !== null;
+  }
+
+  async addLike(
+    postId: string,
+    userId: string
+  ): Promise<PostEntityPublic | null | never> {
+    try {
+      const isLiked = await this.isLikedByCurrentUser(postId, userId);
+
+      if (isLiked) {
+        // Remove the like
+        await this.client.postLike.delete({
+          where: {
+            postId_userId: { postId, userId },
+          },
+        });
+      } else {
+        // Add a like
+        await this.client.postLike.create({
+          data: {
+            postId,
+            userId,
+          },
+        });
+      }
+      const updatedPost = await this.findOneById(postId);
+
+      return updatedPost;
+    } catch (error) {
+      if (
+        error instanceof PrismaClientValidationError ||
+        error instanceof PrismaClientKnownRequestError
+      ) {
+        throw new ValidationConstraintError();
+      }
+      throw new DbError();
+    }
+  }
 }
 
 const postRepository = new PostRepository(dbClient);
